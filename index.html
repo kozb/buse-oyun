@@ -42,6 +42,41 @@
       to { opacity: 1; }
     }
 
+    .avatar {
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 20px rgba(139, 74, 92, 0.25);
+    }
+
+    .avatar-start {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 1rem;
+    }
+
+    .avatar-game {
+      width: 64px;
+      height: 64px;
+    }
+
+    .avatars-end {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .avatars-end .avatar {
+      width: 80px;
+      height: 80px;
+    }
+
+    .avatars-end .heart-between {
+      font-size: 2rem;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
     /* Start screen */
     .start-screen h1 {
       font-size: 1.75rem;
@@ -134,6 +169,15 @@
       transform: scale(1.15);
     }
 
+    .work-item img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
     @keyframes popIn {
       0% {
         transform: scale(0);
@@ -213,8 +257,9 @@
 </head>
 <body>
   <div id="start-screen" class="screen active">
+    <img src="buse.png" alt="Buse" class="avatar avatar-start">
     <h1>Buse, İşler Seni Çaldı... 😅</h1>
-    <p>Şimdi sen de işleri yok et! Ekranda beliren emojilere dokun.<br>20 puana ulaşınca sürpriz var 💕</p>
+    <p>Şimdi sen de işleri yok et! Ekranda beliren emojilere (ve Kaan'a!) dokun.<br>20 puana ulaşınca sürpriz var 💕</p>
     <button class="btn-start" id="btn-start">Başla!</button>
   </div>
 
@@ -227,14 +272,26 @@
   </div>
 
   <div id="end-screen" class="screen">
-    <div class="heart-big">💕</div>
+    <div class="avatars-end">
+      <img src="kaan.png" alt="Kaan" class="avatar">
+      <span class="heart-between">💕</span>
+      <img src="buse.png" alt="Buse" class="avatar">
+    </div>
     <h1>Artık Sadece Sen Varsın, Buse</h1>
     <p>Özür dilerim canım. İşe çok odaklandığım için seni ihmal ettim.<br>Bunu fark ettim ve sen benim için her şeyden önemlisin. 💖</p>
     <button class="btn-replay" id="btn-replay">Tekrar Oyna</button>
   </div>
 
   <script>
-    const WORK_EMOJIS = ['💼', '📧', '📅', '☕', '💻'];
+    const WORK_ITEMS = [
+      { type: 'emoji', value: '💼', points: 1 },
+      { type: 'emoji', value: '📧', points: 1 },
+      { type: 'emoji', value: '📅', points: 1 },
+      { type: 'emoji', value: '☕', points: 1 },
+      { type: 'emoji', value: '💻', points: 1 },
+      { type: 'avatar', src: 'kaan.png', points: 2 },
+      { type: 'avatar', src: 'buse.png', points: 2 }
+    ];
     const TARGET_SCORE = 20;
     const SPAWN_INTERVAL = 800;
     const GAME_AREA_PADDING = 20;
@@ -261,10 +318,19 @@
     function spawnWorkItem() {
       if (!gameStarted) return;
 
+      const pick = WORK_ITEMS[Math.floor(Math.random() * WORK_ITEMS.length)];
       const item = document.createElement('div');
       item.className = 'work-item';
-      item.textContent = WORK_EMOJIS[Math.floor(Math.random() * WORK_EMOJIS.length)];
-      item.dataset.points = '1';
+
+      if (pick.type === 'emoji') {
+        item.textContent = pick.value;
+      } else {
+        const img = document.createElement('img');
+        img.src = pick.src;
+        img.alt = pick.src.replace('.png', '');
+        item.appendChild(img);
+      }
+      item.dataset.points = pick.points;
 
       const rect = gameArea.getBoundingClientRect();
       const areaW = rect.width || window.innerWidth;
