@@ -81,9 +81,12 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
       height: 100vh;
       height: 100dvh;
       width: 100%;
+      padding: 0;
     }
 
     .score-bar {
@@ -112,6 +115,8 @@
       position: relative;
       margin-top: 4rem;
       overflow: hidden;
+      min-height: 200px;
+      width: 100%;
     }
 
     .work-item {
@@ -119,8 +124,10 @@
       font-size: 3rem;
       cursor: pointer;
       user-select: none;
+      pointer-events: auto;
       animation: popIn 0.3s ease;
       transition: transform 0.15s;
+      z-index: 5;
     }
 
     .work-item:active {
@@ -259,10 +266,13 @@
       item.textContent = WORK_EMOJIS[Math.floor(Math.random() * WORK_EMOJIS.length)];
       item.dataset.points = '1';
 
-      const maxX = gameArea.offsetWidth - 60;
-      const maxY = gameArea.offsetHeight - 60;
-      const x = GAME_AREA_PADDING + Math.random() * Math.max(0, maxX - GAME_AREA_PADDING);
-      const y = GAME_AREA_PADDING + Math.random() * Math.max(0, maxY - GAME_AREA_PADDING);
+      const rect = gameArea.getBoundingClientRect();
+      const areaW = rect.width || window.innerWidth;
+      const areaH = rect.height || window.innerHeight - 80;
+      const maxX = Math.max(40, areaW - 60);
+      const maxY = Math.max(40, areaH - 60);
+      const x = GAME_AREA_PADDING + Math.random() * (maxX - GAME_AREA_PADDING * 2);
+      const y = GAME_AREA_PADDING + Math.random() * (maxY - GAME_AREA_PADDING * 2);
 
       item.style.left = x + 'px';
       item.style.top = y + 'px';
@@ -300,8 +310,13 @@
 
       showScreen(gameScreen);
 
-      spawnTimer = setInterval(spawnWorkItem, SPAWN_INTERVAL);
-      setTimeout(spawnWorkItem, 300);
+      function startSpawning() {
+        spawnWorkItem();
+        spawnTimer = setInterval(spawnWorkItem, SPAWN_INTERVAL);
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => startSpawning());
+      });
     }
 
     function endGame() {
